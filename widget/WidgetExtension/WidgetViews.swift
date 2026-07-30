@@ -58,10 +58,10 @@ struct SmallView: View {
 struct MediumView: View {
     let entry: UsageEntry
     var body: some View {
-        HStack(spacing: 0) {
-            SegmentView(label: "5h", pct: entry.rollingPct, reset: entry.rollingReset)
-            SegmentView(label: "Wk", pct: entry.weeklyPct, reset: entry.weeklyReset)
-            SegmentView(label: "Mo", pct: entry.monthlyPct, reset: entry.monthlyReset)
+        VStack(spacing: 6) {
+            WideSegmentView(label: "Rolling (5h)", pct: entry.rollingPct, reset: entry.rollingReset)
+            WideSegmentView(label: "Weekly", pct: entry.weeklyPct, reset: entry.weeklyReset)
+            WideSegmentView(label: "Monthly", pct: entry.monthlyPct, reset: entry.monthlyReset)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
@@ -71,20 +71,66 @@ struct MediumView: View {
 struct LargeView: View {
     let entry: UsageEntry
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 0) {
             HStack {
                 Image(systemName: "brain.head.profile")
                     .foregroundColor(.orange)
                 Text("OpenCode Go Usage")
-                    .font(.headline)
+                    .font(.system(size: 12, weight: .semibold))
                 Spacer()
             }
+            .padding(.horizontal, 10).padding(.top, 8).padding(.bottom, 4)
+
             Divider()
-            WideSegmentView(label: "Rolling (5h)", pct: entry.rollingPct, reset: entry.rollingReset)
-            WideSegmentView(label: "Weekly", pct: entry.weeklyPct, reset: entry.weeklyReset)
-            WideSegmentView(label: "Monthly", pct: entry.monthlyPct, reset: entry.monthlyReset)
+
+            VStack(spacing: 4) {
+                Text("\(entry.monthlyPct)%")
+                    .font(.system(size: 36, weight: .black, design: .monospaced))
+                    .foregroundColor(color(entry.monthlyPct))
+                Text("Monthly Usage")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Gauge(value: Double(entry.monthlyPct), in: 0...100) {}
+                    .tint(color(entry.monthlyPct))
+                    .gaugeStyle(.accessoryLinearCapacity)
+                    .padding(.horizontal, 10)
+                Text("Resets \(entry.monthlyReset)")
+                    .font(.system(size: 9))
+                    .foregroundColor(.secondary)
+            }
+            .padding(.vertical, 10)
+
+            Divider()
+
+            VStack(spacing: 6) {
+                CompactRow(label: "Rolling (5h)", pct: entry.rollingPct, reset: entry.rollingReset)
+                CompactRow(label: "Weekly", pct: entry.weeklyPct, reset: entry.weeklyReset)
+                CompactRow(label: "Monthly", pct: entry.monthlyPct, reset: entry.monthlyReset)
+            }
+            .padding(.horizontal, 10).padding(.vertical, 8)
         }
-        .padding()
+    }
+}
+
+struct CompactRow: View {
+    let label: String
+    let pct: Int
+    let reset: String
+
+    var body: some View {
+        HStack {
+            Text(label)
+                .font(.system(size: 10))
+                .foregroundColor(.secondary)
+            Spacer()
+            Text("\(pct)%")
+                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .foregroundColor(color(pct))
+            Spacer()
+            Text(reset)
+                .font(.system(size: 9))
+                .foregroundColor(.secondary)
+        }
     }
 }
 

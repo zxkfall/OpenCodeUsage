@@ -8,6 +8,6 @@
 | 2026-07-30 | Conventional Commits | Commit 格式统一为 `feat:`, `fix:`, `chore:` 等。 |
 | 2026-07-30 | 统一项目文档 | AGENTS.md 重写为实际代码结构的准确描述，新增 README.md 面向最终用户的安装说明。 |
 | 2026-07-30 | Widget 沙盒数据共享 | 沙盒 Widget 的 `Data(contentsOf:)` 被拦截导致无法读取 App Group 容器中的 `usage.json`（虽然 `containerURL` 返回正确路径、`fileExists` 返回 true，但实际读取被沙盒拒绝）。解决方案：App（非沙盒）直接将 `usage.json` 写入 Widget 沙盒 `~/Library/Containers/...widget/Data/Documents/usage.json`，Widget 优先读自身沙盒文件。 |
-| 2026-07-30 | 菜单栏布局重构 | `.menuBarExtraStyle(.window)` 替代默认 NSMenu 样式。默认 `.menu` 样式下，VStack 子元素被当作独立 NSMenuItem 渲染，HStack 布局塌陷成竖排、进度条不显示。改为 `.window` 后 HStack 正常。WindowRow 列为 label(42) + pct(36) + 进度条(96, overlay) + reset(42)，菜单 260px。避免 GeometryReader（MenuBarExtra 中拿不到宽度），用固定 bar 宽度 + overlay 做进度条。 |
+| 2026-07-30 | Widget 布局分层 | Small: 月度百分比 + gauge（保持）。Medium: 三行 WideSegmentView（label + pct + reset 同行 + 进度条），取消三列 gauge 布局。Large: 仪表盘风格 — 标题 + 大号月度百分比(36pt) + 进度条 + 重置时间 + 下方三行 CompactRow 文本。 |
 | 2026-07-30 | Widget 调试经验 | 沙盒 Widget 的 `Data(contentsOf:)` 被拦截但 `fileExists` 返回 true——沙盒允许 stat 但不允许 open。用 `FileManager.default.urls(for: .documentDirectory)` 写入诊断文件定位根因。WidgetKit timeline 缓存 5 分钟，旧入口会卡住 No data 显示，需删除 widget + 重启 NotificationCenter 才能触发新 timeline。WidgetKit 扩展**必须**启用 `app-sandbox` 否则无法被系统注册。 |
 | 2026-07-30 | 开发规范 | 禁止 `open .build/.../xxx.app` 直接运行，必须先 `cp -R` 到 `/Applications`。否则 WidgetKit 注册的 `.appex` 路径是 `.build/` 而非 `/Applications`，删除 App 时 Widget 不会自动注销。 |
