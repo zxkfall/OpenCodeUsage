@@ -6,7 +6,11 @@ macOS 菜单栏 App + WidgetKit 小组件，显示 OpenCode Go API 用量（滚�
 
 从 [Releases](../../releases) 下载最新 `OpenCodeUsage.dmg`，将 `OpenCode Usage.app` 拖入 `Applications`，双击运行。
 
-> 首次打开时，如果提示"无法验证开发者"，右键点击 App → 打开 即可。
+> 首次打开时，如果提示"已损坏，无法打开"，终端执行：
+> ```bash
+> xattr -cr "/Applications/OpenCode Usage.app"
+> ```
+> 这是 macOS Gatekeeper 对未签名 App 的限制，非 App 本身损坏。
 
 ## 首次配置
 
