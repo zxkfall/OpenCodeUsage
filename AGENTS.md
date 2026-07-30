@@ -48,7 +48,7 @@ GitHub Actions (`.github/workflows/release.yml`):
 
 - **Data source**: HTTP scraping — `UsageFetcher` fetches `https://opencode.ai/workspace/{id}/go`, parses usage from HTML regex
 - **Credentials**: macOS Keychain (`com.flywinter.opencode.usage-bar`) — workspace ID + auth cookie. Configured via gear icon in menu bar dropdown.
-- **App Group sharing**: `$(TeamIdentifierPrefix)com.flywinter.opencode-usage-bar` — the app writes `usage.json` to the shared container; the widget reads it. Fallback hardcoded for debug builds without proper signing (`AppGroupHelper.swift:10-14`).
+- **Data sharing**: App (non-sandboxed) writes `usage.json` to both App Group containers AND the Widget's own sandbox (`~/Library/Containers/...widget/Data/Documents/usage.json`). Widget (sandboxed) reads from its own sandbox first, falls back to App Group. This bypasses a macOS sandbox bug where `Data(contentsOf:)` on App Group files fails even though `fileExists` succeeds.
 - **Refresh**: Menu bar app polls every 5 min. WidgetKit timeline refreshes every 5 min.
 
 ## Conventions
@@ -59,4 +59,4 @@ GitHub Actions (`.github/workflows/release.yml`):
 - **敏感信息不得被 git 追踪** — 写入敏感信息的文件（如 `.env`、`credentials.json`）必须加入 `.gitignore`
 - Large output files (*.json, *.log, *.dmg) can be omitted
 - Log key decisions in `DECISIONS.md`
-- User constraints in `CONTEXT.md` (do not modify files without permission, "先分析" = analyze-only mode)
+- User constraints in `CONTEXT.md` (do not modify files without permission, 提交前确认, "先分析" = analyze-only mode)

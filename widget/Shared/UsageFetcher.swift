@@ -150,13 +150,21 @@ class UsageFetcher: ObservableObject {
                 self.isLoading = false
             }
 
-            // Write to App Group for widget
-            if let encoded = encoded,
-               let groupId = getAppGroupId(),
-               let containerURL = FileManager.default.containerURL(
-                forSecurityApplicationGroupIdentifier: groupId
-               ) {
-                try? encoded.write(to: containerURL.appendingPathComponent("usage.json"))
+            // Write to App Group for widget AND to widget's sandbox
+            if let encoded = encoded {
+                // App Group containers
+                let home = FileManager.default.homeDirectoryForCurrentUser
+                let groupDir = home.appendingPathComponent("Library/Group Containers")
+                if let contents = try? FileManager.default.contentsOfDirectory(atPath: groupDir.path) {
+                    for item in contents where item.contains("opencode") {
+                        let fileURL = groupDir.appendingPathComponent(item).appendingPathComponent("usage.json")
+                        try? encoded.write(to: fileURL)
+                    }
+                }
+                // Widget's sandbox container (bypasses App Group sandbox issue)
+                let widgetSandbox = home.appendingPathComponent("Library/Containers/com.flywinter.opencode-usage-bar.widget/Data/Documents")
+                try? FileManager.default.createDirectory(at: widgetSandbox, withIntermediateDirectories: true)
+                try? encoded.write(to: widgetSandbox.appendingPathComponent("usage.json"))
             }
         }.resume()
     }

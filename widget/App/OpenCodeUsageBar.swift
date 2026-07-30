@@ -127,35 +127,30 @@ struct OpenCodeUsageApp: App {
 
     // MARK: - Menu Bar Label
 
+    private var menuBarText: String {
+        if let usage = fetcher.usage, usage.error == nil {
+            return "Go \(usage.monthly.usagePercent)%"
+        } else if fetcher.error != nil {
+            return "Go"
+        } else if fetcher.isLoading {
+            return "Go ..."
+        } else {
+            return "Go"
+        }
+    }
+
+    private var menuBarColor: Color {
+        if let usage = fetcher.usage, usage.error == nil {
+            return color(for: usage.monthly.usagePercent)
+        }
+        return .orange
+    }
+
     @ViewBuilder
     private var menuBarLabel: some View {
-        if let usage = fetcher.usage, usage.error == nil {
-            let pct = usage.monthly.usagePercent
-            HStack(spacing: 2) {
-                Image(systemName: icon(for: pct))
-                    .foregroundColor(color(for: pct))
-                    .font(.system(size: 8))
-                Text("Go")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                Text("\(pct)%")
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundColor(color(for: pct))
-            }
-        } else if fetcher.error != nil {
-            HStack(spacing: 2) {
-                Text("Go")
-                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.orange)
-                    .font(.system(size: 8))
-            }
-        } else if fetcher.isLoading {
-            Text("Go ...")
-                .font(.system(size: 10, design: .monospaced))
-        } else {
-            Text("Go")
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
-        }
+        Text(menuBarText)
+            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .foregroundColor(menuBarColor)
     }
 
     // MARK: - Menu Content
@@ -236,12 +231,6 @@ struct OpenCodeUsageApp: App {
     }
 
     // MARK: - Helpers
-
-    private func icon(for pct: Int) -> String {
-        if pct > 80 { return "circle.fill" }
-        if pct > 50 { return "circle.lefthalf.filled" }
-        return "circle"
-    }
 
     private func color(for pct: Int) -> Color {
         if pct > 80 { return .red }

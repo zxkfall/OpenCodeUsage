@@ -37,30 +37,34 @@ struct UsageEntry: TimelineEntry {
 }
 
 func loadUsageData() -> UsageEntry {
-    guard let groupId = getAppGroupId(),
-          let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: groupId
-          ) else {
-        return errorEntry("App Group not configured")
+    // Read from widget's own sandbox (written by app)
+    if let docsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+        let dataURL = docsURL.appendingPathComponent("usage.json")
+        if let entry = parseUsageFile(at: dataURL) { return entry }
     }
+    // Fallback: try App Group
+    if let groupId = getAppGroupId(),
+       let containerURL = FileManager.default.containerURL(
+        forSecurityApplicationGroupIdentifier: groupId
+       ) {
+        let dataURL = containerURL.appendingPathComponent("usage.json")
+        if let entry = parseUsageFile(at: dataURL) { return entry }
+    }
+    return errorEntry("No data")
+}
 
-    let dataURL = containerURL.appendingPathComponent("usage.json")
-
-    guard let data = try? Data(contentsOf: dataURL),
+private func parseUsageFile(at url: URL) -> UsageEntry? {
+    guard let data = try? Data(contentsOf: url),
           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-        return errorEntry("No data")
+        return nil
     }
-
     if let err = json["error"] as? String, !err.isEmpty {
-        return errorEntry(err)
+        return nil
     }
-
     func window(_ key: String) -> [String: Any]? { json[key] as? [String: Any] }
-
     let r = window("rolling")
     let w = window("weekly")
     let m = window("monthly")
-
     return UsageEntry(
         date: Date(),
         rollingPct: r?["usagePercent"] as? Int ?? 0,
