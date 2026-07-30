@@ -36,8 +36,16 @@ killall NotificationCenter
 
 ```bash
 bash widget/Scripts/build.sh
-open widget/OpenCodeUsage.dmg
 ```
+
+本地调试：
+
+```bash
+cp -R widget/.build/Build/Products/Debug/OpenCode\ Usage.app /Applications/
+open "/Applications/OpenCode Usage.app"
+```
+
+> **不要直接 `open .build/.../xxx.app`**，否则 Widget 注册路径会锁定到 `.build/` 目录，删除 App 时 Widget 不会自动消失。
 
 ## CI/CD
 
