@@ -131,19 +131,26 @@ struct OpenCodeUsageApp: App {
     private var menuBarLabel: some View {
         if let usage = fetcher.usage, usage.error == nil {
             let pct = usage.monthly.usagePercent
-            HStack(spacing: 3) {
+            HStack(spacing: 2) {
                 Image(systemName: icon(for: pct))
                     .foregroundColor(color(for: pct))
                     .font(.system(size: 8))
+                Text("Go")
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
                 Text("\(pct)%")
-                    .font(.system(size: 11, weight: .medium, design: .monospaced))
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .foregroundColor(color(for: pct))
             }
         } else if fetcher.error != nil {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundColor(.orange)
-                .font(.system(size: 10))
+            HStack(spacing: 2) {
+                Text("Go")
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.orange)
+                    .font(.system(size: 8))
+            }
         } else if fetcher.isLoading {
-            Text("...")
+            Text("Go ...")
                 .font(.system(size: 10, design: .monospaced))
         } else {
             Text("Go")
