@@ -1,0 +1,49 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Generate Xcode project
+        run: python3 widget/Scripts/generate_xcode.py
+
+      - name: Build
+        run: |
+          xcodebuild \
+            -project widget/OpenCodeUsage.xcodeproj \
+            -scheme "OpenCode Usage" \
+            -configuration Release \
+            -derivedDataPath widget/.build \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Create DMG
+        run: |
+          APP="widget/.build/Build/Products/Release/OpenCode Usage.app"
+          TMP_VOL="/Volumes/OpenCode Usage"
+          TMP_DMG="widget/.build/tmp.dmg"
+
+          hdiutil create -size 20m -fs HFS+ -volname "OpenCode Usage" "$TMP_DMG" > /dev/null
+          hdiutil attach "$TMP_DMG" -mountpoint "$TMP_VOL" > /dev/null
+          cp -R "$APP" "$TMP_VOL/"
+          ln -s /Applications "$TMP_VOL/Applications" 2>/dev/null || true
+          hdiutil detach "$TMP_VOL" -force > /dev/null
+          hdiutil convert "$TMP_DMG" -format UDZO -o OpenCodeUsage.dmg > /dev/null
+          rm -f "$TMP_DMG"
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: OpenCodeUsage.dmg
