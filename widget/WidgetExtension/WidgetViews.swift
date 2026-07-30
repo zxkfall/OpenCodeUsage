@@ -58,12 +58,13 @@ struct SmallView: View {
 struct MediumView: View {
     let entry: UsageEntry
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 0) {
             SegmentView(label: "5h", pct: entry.rollingPct, reset: entry.rollingReset)
-            SegmentView(label: "Week", pct: entry.weeklyPct, reset: entry.weeklyReset)
-            SegmentView(label: "Month", pct: entry.monthlyPct, reset: entry.monthlyReset)
+            SegmentView(label: "Wk", pct: entry.weeklyPct, reset: entry.weeklyReset)
+            SegmentView(label: "Mo", pct: entry.monthlyPct, reset: entry.monthlyReset)
         }
-        .padding()
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
     }
 }
 
@@ -100,7 +101,7 @@ struct SegmentView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
             Text("\(pct)%")
-                .font(.system(.title3, design: .monospaced))
+                .font(.system(.title2, design: .monospaced))
                 .bold()
                 .foregroundColor(color(pct))
             Gauge(value: Double(pct), in: 0...100) {}
@@ -110,6 +111,7 @@ struct SegmentView: View {
                 .font(.system(size: 8))
                 .foregroundColor(.secondary)
         }
+        .frame(maxWidth: .infinity)
     }
 }
 

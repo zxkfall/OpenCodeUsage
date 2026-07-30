@@ -123,6 +123,7 @@ struct OpenCodeUsageApp: App {
         } label: {
             menuBarLabel
         }
+        .menuBarExtraStyle(.window)
     }
 
     // MARK: - Menu Bar Label
@@ -159,54 +160,49 @@ struct OpenCodeUsageApp: App {
     private var menuContent: some View {
         if let usage = fetcher.usage, usage.error == nil {
             VStack(alignment: .leading, spacing: 0) {
+                // Title bar
                 HStack {
-                    Image(systemName: "brain.head.profile")
-                        .foregroundColor(.orange)
-                    Text("OpenCode Go").font(.headline)
+                    Text("OpenCode Go").font(.system(size: 13, weight: .semibold))
                     Spacer()
                     if fetcher.isLoading {
-                        ProgressView().scaleEffect(0.6).frame(width: 14, height: 14)
+                        ProgressView().scaleEffect(0.5).frame(width: 12, height: 12)
                     }
                     Button(action: { settingsController.show(fetcher: fetcher) }) {
-                        Image(systemName: "gearshape")
+                        Image(systemName: "gearshape").font(.system(size: 12))
                     }
                     .buttonStyle(.plain)
                     .help("Settings")
                 }
-                .padding(.horizontal, 12).padding(.vertical, 8)
+                .padding(.horizontal, 10).padding(.vertical, 6)
 
                 Divider()
 
-                WindowRow(label: "Rolling (5h)", window: usage.rolling)
-                WindowRow(label: "Weekly", window: usage.weekly)
-                WindowRow(label: "Monthly", window: usage.monthly)
+                WindowRow(label: "5h", window: usage.rolling)
+                WindowRow(label: "Week", window: usage.weekly)
+                WindowRow(label: "Month", window: usage.monthly)
 
                 Divider()
 
-                Button(action: { fetcher.fetch() }) {
-                    HStack {
-                        Image(systemName: "arrow.clockwise")
-                        Text("Refresh")
+                HStack(spacing: 0) {
+                    Button(action: { fetcher.fetch() }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.clockwise")
+                            Text("Refresh")
+                        }
+                        .font(.system(size: 11))
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 12).padding(.vertical, 6)
-                .keyboardShortcut("r")
-
-                Divider()
-
-                Button(action: { NSApp.terminate(nil) }) {
-                    HStack {
-                        Text("Quit")
+                    .buttonStyle(.plain)
+                    .keyboardShortcut("r")
+                    Spacer()
+                    Button(action: { NSApp.terminate(nil) }) {
+                        Text("Quit").font(.system(size: 11))
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .buttonStyle(.plain)
+                    .keyboardShortcut("q")
                 }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 12).padding(.vertical, 6)
-                .keyboardShortcut("q")
+                .padding(.horizontal, 10).padding(.vertical, 6)
             }
-            .frame(width: 280)
+            .frame(width: 260)
         } else if let error = fetcher.error {
             VStack(spacing: 8) {
                 Text("OpenCode Go").font(.headline)
@@ -250,36 +246,33 @@ struct WindowRow: View {
     let window: UsageWindow
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(label)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.orange)
-                Spacer()
-                Text("\(window.usagePercent)%")
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundColor(window.usagePercent > 80 ? .red :
-                                      window.usagePercent > 50 ? .orange : .green)
-            }
+        let pct = window.usagePercent
+        let barColor: Color = pct > 80 ? .red : pct > 50 ? .orange : .green
 
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
+        HStack(spacing: 6) {
+            Text(label)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.secondary)
+                .frame(width: 42, alignment: .leading)
+            Text("\(pct)%")
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .foregroundColor(barColor)
+                .frame(width: 36, alignment: .trailing)
+            RoundedRectangle(cornerRadius: 2)
+                .fill(Color.primary.opacity(0.1))
+                .frame(width: 96, height: 4)
+                .overlay(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.primary.opacity(0.1))
-                        .frame(height: 4)
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(window.usagePercent > 80 ? Color.red :
-                                window.usagePercent > 50 ? Color.orange : Color.green)
-                        .frame(width: geo.size.width * min(Double(window.usagePercent) / 100.0, 1.0), height: 4)
+                        .fill(barColor)
+                        .frame(width: 96 * min(Double(pct) / 100.0, 1.0), height: 4)
                 }
-            }
-            .frame(height: 4)
-
-            Text("resets in \(window.resetDescription)")
+            Text(window.resetDescription)
                 .font(.system(size: 9))
                 .foregroundColor(.secondary)
+                .frame(width: 42, alignment: .trailing)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .frame(height: 22)
     }
 }

@@ -8,4 +8,4 @@
 | 2026-07-30 | Conventional Commits | Commit 格式统一为 `feat:`, `fix:`, `chore:` 等。 |
 | 2026-07-30 | 统一项目文档 | AGENTS.md 重写为实际代码结构的准确描述，新增 README.md 面向最终用户的安装说明。 |
 | 2026-07-30 | Widget 沙盒数据共享 | 沙盒 Widget 的 `Data(contentsOf:)` 被拦截导致无法读取 App Group 容器中的 `usage.json`（虽然 `containerURL` 返回正确路径、`fileExists` 返回 true，但实际读取被沙盒拒绝）。解决方案：App（非沙盒）直接将 `usage.json` 写入 Widget 沙盒 `~/Library/Containers/...widget/Data/Documents/usage.json`，Widget 优先读自身沙盒文件。 |
-| 2026-07-30 | 菜单栏样式 | 改为 `Go XX%` 纯文字格式，去掉圆圈图标。使用 `Text` 计算属性替代 `@ViewBuilder` 避免 MenuBarExtra label 渲染不刷新问题。 |
+| 2026-07-30 | 菜单栏布局重构 | 统一用 `.menuBarExtraStyle(.window)` 替代默认 NSMenu 样式，解决 HStack 竖排问题。WindowRow 改为列对齐：label(42) + pct(36) + 进度条(96, overlay) + reset(42)，菜单宽度 260px。Refresh/Quit 并排。 |

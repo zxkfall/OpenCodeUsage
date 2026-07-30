@@ -8,43 +8,59 @@ struct Credentials: Codable {
 
 class KeychainManager {
     static let shared = KeychainManager()
-    private let service = "com.flywinter.opencode.usage-bar"
+    private let service = "com.flywinter.opencode-usage-bar"
+    private let oldService = "com.flywinter.opencode.usage-bar"
     private let account = "opencode-go"
+
+    private func query(service: String, data: Data? = nil) -> [String: Any] {
+        var q: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+        ]
+        if let data = data {
+            q[kSecValueData as String] = data
+            q[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
+        }
+        return q
+    }
 
     func save(_ credentials: Credentials) {
         guard let data = try? JSONEncoder().encode(credentials) else { return }
         delete()
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecValueData as String: data,
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
-        ]
-        SecItemAdd(query as CFDictionary, nil)
+        SecItemAdd(query(service: service, data: data) as CFDictionary, nil)
     }
 
     func load() -> Credentials? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-        ]
         var item: CFTypeRef?
-        guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
-              let data = item as? Data else { return nil }
-        return try? JSONDecoder().decode(Credentials.self, from: data)
+        var q = query(service: service)
+        q[kSecReturnData as String] = true
+        q[kSecMatchLimit as String] = kSecMatchLimitOne
+
+        // Try new service name first
+        if SecItemCopyMatching(q as CFDictionary, &item) == errSecSuccess,
+           let data = item as? Data {
+            return try? JSONDecoder().decode(Credentials.self, from: data)
+        }
+
+        // Migrate from old service name
+        var oldQ = query(service: oldService)
+        oldQ[kSecReturnData as String] = true
+        oldQ[kSecMatchLimit as String] = kSecMatchLimitOne
+        if SecItemCopyMatching(oldQ as CFDictionary, &item) == errSecSuccess,
+           let data = item as? Data,
+           let creds = try? JSONDecoder().decode(Credentials.self, from: data) {
+            save(creds)
+            SecItemDelete(query(service: oldService) as CFDictionary)
+            return creds
+        }
+
+        return nil
     }
 
     func delete() {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-        ]
-        SecItemDelete(query as CFDictionary)
+        SecItemDelete(query(service: service) as CFDictionary)
+        SecItemDelete(query(service: oldService) as CFDictionary)
     }
 }
 
