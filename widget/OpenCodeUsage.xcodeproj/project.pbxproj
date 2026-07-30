@@ -1,0 +1,356 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		06404C4AF60C860360A6470D /* Shared/UsageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8442FD96C58DB03F400D649 /* Shared/UsageFetcher.swift */; };
+		523BFB66E759D0F478C61702 /* OpenCodeWidgetExtension.appex in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1E7E09F6F59B0D4D7A09BC16 /* OpenCodeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5694A430BB4631D21A0BD0DB /* WidgetExtension/Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F28890294F4F2CEA931EDCC /* WidgetExtension/Provider.swift */; };
+		75A22BF9C923656575E7BC74 /* Shared/AppGroupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89F5D1A036A4D0ED1A215C7 /* Shared/AppGroupHelper.swift */; };
+		82C9AAEBF330EA1E81251A00 /* App/OpenCodeUsageBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A5FA62F001E6CD7CC7A4E89 /* App/OpenCodeUsageBar.swift */; };
+		B0B3F68D1A34405A525AA606 /* WidgetExtension/WidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 794BB16FF239928E64355D42 /* WidgetExtension/WidgetBundle.swift */; };
+		D3CACE9DB5E6D81DEC5555AD /* WidgetExtension/WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83F88B1A40A9922E189F873F /* WidgetExtension/WidgetViews.swift */; };
+		ED4EF6C02CB357DA545A6E24 /* Shared/AppGroupHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89F5D1A036A4D0ED1A215C7 /* Shared/AppGroupHelper.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		79266744EB720B5B7651AC47 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				523BFB66E759D0F478C61702 /* OpenCodeWidgetExtension.appex in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1A62F29B970153E7F2CDACE4 /* WidgetExtension/Widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetExtension/Widget.entitlements; sourceTree = "<group>"; };
+		1E7E09F6F59B0D4D7A09BC16 /* OpenCodeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OpenCodeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DD38507A1451C17740130CB /* WidgetExtension/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = WidgetExtension/Info.plist; sourceTree = "<group>"; };
+		794BB16FF239928E64355D42 /* WidgetExtension/WidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetExtension/WidgetBundle.swift; sourceTree = "<group>"; };
+		7F28890294F4F2CEA931EDCC /* WidgetExtension/Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetExtension/Provider.swift; sourceTree = "<group>"; };
+		83F88B1A40A9922E189F873F /* WidgetExtension/WidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetExtension/WidgetViews.swift; sourceTree = "<group>"; };
+		8845B84C31AD8E7F186CCD82 /* App/App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App/App.entitlements; sourceTree = "<group>"; };
+		8A5FA62F001E6CD7CC7A4E89 /* App/OpenCodeUsageBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/OpenCodeUsageBar.swift; sourceTree = "<group>"; };
+		A89F5D1A036A4D0ED1A215C7 /* Shared/AppGroupHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/AppGroupHelper.swift; sourceTree = "<group>"; };
+		C8442FD96C58DB03F400D649 /* Shared/UsageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shared/UsageFetcher.swift; sourceTree = "<group>"; };
+		DAE95F30FEE558549B59ED34 /* App/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = App/Info.plist; sourceTree = "<group>"; };
+		E7A1DE34D9038E37B8AA0A97 /* OpenCode Usage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OpenCode Usage.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7C15D919CA67ED8118572310 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		944FFA62E94063ACF8326ED6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0A85897F1A32FE9B91C081CD = {
+			isa = PBXGroup;
+			children = (
+				3DFE442710E429386E53D077,
+				D1E034B8DB47876DC6E7FED3,
+				FC1A8818F8805D28F3E6F6DF,
+				B88D7E26791946AEFDCC8BB7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3DFE442710E429386E53D077 = {
+			isa = PBXGroup;
+			children = (
+				8A5FA62F001E6CD7CC7A4E89 /* App/OpenCodeUsageBar.swift */,
+				DAE95F30FEE558549B59ED34 /* App/Info.plist */,
+				8845B84C31AD8E7F186CCD82 /* App/App.entitlements */,
+			);
+			sourceTree = "<group>";
+		};
+		B88D7E26791946AEFDCC8BB7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E7A1DE34D9038E37B8AA0A97 /* OpenCode Usage.app */,
+				1E7E09F6F59B0D4D7A09BC16 /* OpenCodeWidgetExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D1E034B8DB47876DC6E7FED3 = {
+			isa = PBXGroup;
+			children = (
+				7F28890294F4F2CEA931EDCC /* WidgetExtension/Provider.swift */,
+				83F88B1A40A9922E189F873F /* WidgetExtension/WidgetViews.swift */,
+				794BB16FF239928E64355D42 /* WidgetExtension/WidgetBundle.swift */,
+				4DD38507A1451C17740130CB /* WidgetExtension/Info.plist */,
+				1A62F29B970153E7F2CDACE4 /* WidgetExtension/Widget.entitlements */,
+			);
+			sourceTree = "<group>";
+		};
+		FC1A8818F8805D28F3E6F6DF = {
+			isa = PBXGroup;
+			children = (
+				C8442FD96C58DB03F400D649 /* Shared/UsageFetcher.swift */,
+				A89F5D1A036A4D0ED1A215C7 /* Shared/AppGroupHelper.swift */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9F9C49C79EBAC45500E52663 /* OpenCode Usage */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 821683190F4188342CC9A96B /* Build configuration list for PBXNativeTarget "OpenCode Usage" */;
+			buildPhases = (
+				DA0052620756B38ED82024FE /* Sources */,
+				944FFA62E94063ACF8326ED6 /* Frameworks */,
+				79266744EB720B5B7651AC47 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "OpenCode Usage";
+			productName = "OpenCode Usage";
+			productReference = E7A1DE34D9038E37B8AA0A97 /* OpenCode Usage.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B96D94A2CBB1822C9B8F3782 /* OpenCodeWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E43FC5101CD8F5DDF5ADFB25 /* Build configuration list for PBXNativeTarget "OpenCodeWidgetExtension" */;
+			buildPhases = (
+				48A2903919C8FD09B5F558CD /* Sources */,
+				7C15D919CA67ED8118572310 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OpenCodeWidgetExtension;
+			productName = OpenCodeWidgetExtension;
+			productReference = 1E7E09F6F59B0D4D7A09BC16 /* OpenCodeWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		71979C0F870BEF1A349CF3F3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 22B2B3FE2898D04F220DBC58 /* Build configuration list for PBXProject "OpenCodeUsage" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 0A85897F1A32FE9B91C081CD;
+			productRefGroup = B88D7E26791946AEFDCC8BB7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9F9C49C79EBAC45500E52663 /* OpenCode Usage */,
+				B96D94A2CBB1822C9B8F3782 /* OpenCodeWidgetExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		48A2903919C8FD09B5F558CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5694A430BB4631D21A0BD0DB /* WidgetExtension/Provider.swift in Sources */,
+				D3CACE9DB5E6D81DEC5555AD /* WidgetExtension/WidgetViews.swift in Sources */,
+				B0B3F68D1A34405A525AA606 /* WidgetExtension/WidgetBundle.swift in Sources */,
+				ED4EF6C02CB357DA545A6E24 /* Shared/AppGroupHelper.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA0052620756B38ED82024FE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				82C9AAEBF330EA1E81251A00 /* App/OpenCodeUsageBar.swift in Sources */,
+				06404C4AF60C860360A6470D /* Shared/UsageFetcher.swift in Sources */,
+				75A22BF9C923656575E7BC74 /* Shared/AppGroupHelper.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		12E9D4FAC13B9EE6345467FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = WidgetExtension/Widget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2LR5YT2B5P;
+				INFOPLIST_FILE = WidgetExtension/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ai.opencode.usage-bar.widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		22030FC1679938CB429E61AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2LR5YT2B5P;
+				INFOPLIST_FILE = App/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ai.opencode.usage-bar";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		3AF29AE07611071546D77881 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = WidgetExtension/Widget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2LR5YT2B5P;
+				INFOPLIST_FILE = WidgetExtension/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ai.opencode.usage-bar.widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		4B8ECE1AC5803520ED3DEC20 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2LR5YT2B5P;
+				INFOPLIST_FILE = App/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "ai.opencode.usage-bar";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AF0A65BA7807AF8DBEB72761 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DD8D5369EB73B6CB6D4E1528 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		22B2B3FE2898D04F220DBC58 /* Build configuration list for PBXProject "OpenCodeUsage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF0A65BA7807AF8DBEB72761 /* Debug */,
+				DD8D5369EB73B6CB6D4E1528 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		821683190F4188342CC9A96B /* Build configuration list for PBXNativeTarget "OpenCode Usage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B8ECE1AC5803520ED3DEC20 /* Debug */,
+				22030FC1679938CB429E61AC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E43FC5101CD8F5DDF5ADFB25 /* Build configuration list for PBXNativeTarget "OpenCodeWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				12E9D4FAC13B9EE6345467FE /* Debug */,
+				3AF29AE07611071546D77881 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 71979C0F870BEF1A349CF3F3 /* Project object */;
+}
