@@ -11,7 +11,8 @@ widget/
 ├── WidgetExtension/        # WidgetKit TimelineProvider + views
 ├── Scripts/
 │   ├── build.sh            # One-shot: generate xcodeproj, build Release, create .dmg
-│   └── generate_xcode.py   # Generates OpenCodeUsage.xcodeproj/project.pbxproj from template
+│   ├── generate_xcode.py   # Generates OpenCodeUsage.xcodeproj/project.pbxproj from template
+│   └── generate_icon.py    # Generates AppIcon.icns from scratch (requires Pillow)
 └── OpenCodeUsage.xcodeproj/ # Auto-generated — never edit manually
 ```
 
@@ -32,6 +33,16 @@ Produces `widget/OpenCodeUsage.dmg`. The build script:
 Two targets (both code-signed automatically):
 - `com.flywinter.opencode-usage-bar` — the menu bar app (`LSUIElement = true`)
 - `com.flywinter.opencode-usage-bar.widget` — WidgetKit extension
+
+## CI/CD
+
+GitHub Actions (`.github/workflows/release.yml`):
+- Trigger: push `v*` tag
+- Runner: `macos-14`
+- Ad-hoc signing (`CODE_SIGN_IDENTITY="-"`, no Developer certificate)
+- Creates `.dmg` and uploads to GitHub Release
+- Repo Settings → Actions → General → Workflow permissions must be "Read and write"
+- **Users must run `xattr -cr "/Applications/OpenCode Usage.app"`** to bypass Gatekeeper for unsigned builds
 
 ## Key Architecture Details
 
