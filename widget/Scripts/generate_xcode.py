@@ -13,11 +13,11 @@ def U(s):
     return h[:8] + h[8:12] + h[12:16] + h[16:20] + h[20:]
 
 keys = [k for k in """
-APP_SRC_BF PROV_BF VIEWS_BF BUNDLE_BF EMBED_BF FETCHER_BF HELPER_BF HELPER_W_BF
-APP_PROD WIDGET_PROD APP_SRC APP_INFO APP_ENT FETCHER_SRC HELPER_SRC
+APP_SRC_BF PROV_BF VIEWS_BF BUNDLE_BF EMBED_BF FETCHER_BF HELPER_BF HELPER_W_BF ICON_BF
+APP_PROD WIDGET_PROD APP_SRC APP_INFO APP_ENT FETCHER_SRC HELPER_SRC ICON_FILE
 PROV_SRC VIEWS_SRC BUNDLE_SRC WIDGET_INFO WIDGET_ENT
 MAIN_GROUP APP_GROUP WIDGET_GROUP SHARED_GROUP PRODUCTS_GROUP
-APP_TGT WIDGET_TGT APP_SRC_PHASE WIDGET_SRC_PHASE
+APP_TGT WIDGET_TGT APP_SRC_PHASE WIDGET_SRC_PHASE APP_RES_PHASE
 APP_FW_PHASE WIDGET_FW_PHASE APP_EMBED_PHASE
 PROJ_ROOT PROJ_CFGLIST APP_CFGLIST WIDGET_CFGLIST
 PROJ_DBG PROJ_REL APP_DBG APP_REL WIDGET_DBG WIDGET_REL
@@ -42,6 +42,7 @@ TEMPLATE = """// !$*UTF8*$!
 		{PROV_BF} /* Provider.swift */ = {isa = PBXBuildFile; fileRef = {PROV_SRC}; };
 		{VIEWS_BF} /* WidgetViews.swift */ = {isa = PBXBuildFile; fileRef = {VIEWS_SRC}; };
 		{BUNDLE_BF} /* WidgetBundle.swift */ = {isa = PBXBuildFile; fileRef = {BUNDLE_SRC}; };
+		{ICON_BF} /* AppIcon.icns */ = {isa = PBXBuildFile; fileRef = {ICON_FILE}; };
 		{EMBED_BF} /* Widget in Embed */ = {isa = PBXBuildFile; fileRef = {WIDGET_PROD}; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -53,6 +54,7 @@ TEMPLATE = """// !$*UTF8*$!
 		{APP_ENT} /* App.entitlements */ = {isa = PBXFileReference; path = App/App.entitlements; sourceTree = "<group>"; };
 		{FETCHER_SRC} /* UsageFetcher.swift */ = {isa = PBXFileReference; path = Shared/UsageFetcher.swift; sourceTree = "<group>"; };
 		{HELPER_SRC} /* AppGroupHelper.swift */ = {isa = PBXFileReference; path = Shared/AppGroupHelper.swift; sourceTree = "<group>"; };
+		{ICON_FILE} /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = App/AppIcon.icns; sourceTree = "<group>"; };
 		{PROV_SRC} /* Provider.swift */ = {isa = PBXFileReference; path = WidgetExtension/Provider.swift; sourceTree = "<group>"; };
 		{VIEWS_SRC} /* WidgetViews.swift */ = {isa = PBXFileReference; path = WidgetExtension/WidgetViews.swift; sourceTree = "<group>"; };
 		{BUNDLE_SRC} /* WidgetBundle.swift */ = {isa = PBXFileReference; path = WidgetExtension/WidgetBundle.swift; sourceTree = "<group>"; };
@@ -62,20 +64,24 @@ TEMPLATE = """// !$*UTF8*$!
 
 /* Begin PBXGroup section */
 		{MAIN_GROUP} = {isa = PBXGroup; children = ({APP_GROUP}, {WIDGET_GROUP}, {SHARED_GROUP}, {PRODUCTS_GROUP}); sourceTree = "<group>"; };
-		{APP_GROUP} = {isa = PBXGroup; children = ({APP_SRC}, {APP_INFO}, {APP_ENT}); sourceTree = "<group>"; };
+		{APP_GROUP} = {isa = PBXGroup; children = ({APP_SRC}, {APP_INFO}, {APP_ENT}, {ICON_FILE}); sourceTree = "<group>"; };
 		{WIDGET_GROUP} = {isa = PBXGroup; children = ({PROV_SRC}, {VIEWS_SRC}, {BUNDLE_SRC}, {WIDGET_INFO}, {WIDGET_ENT}); sourceTree = "<group>"; };
 		{SHARED_GROUP} = {isa = PBXGroup; children = ({FETCHER_SRC}, {HELPER_SRC}); sourceTree = "<group>"; };
 		{PRODUCTS_GROUP} = {isa = PBXGroup; children = ({APP_PROD}, {WIDGET_PROD}); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		{APP_TGT} = {isa = PBXNativeTarget; buildConfigurationList = {APP_CFGLIST}; buildPhases = ({APP_SRC_PHASE}, {APP_FW_PHASE}, {APP_EMBED_PHASE}); buildRules = (); dependencies = (); name = "OpenCode Usage"; productName = "OpenCode Usage"; productReference = {APP_PROD}; productType = "com.apple.product-type.application"; };
+		{APP_TGT} = {isa = PBXNativeTarget; buildConfigurationList = {APP_CFGLIST}; buildPhases = ({APP_SRC_PHASE}, {APP_FW_PHASE}, {APP_RES_PHASE}, {APP_EMBED_PHASE}); buildRules = (); dependencies = (); name = "OpenCode Usage"; productName = "OpenCode Usage"; productReference = {APP_PROD}; productType = "com.apple.product-type.application"; };
 		{WIDGET_TGT} = {isa = PBXNativeTarget; buildConfigurationList = {WIDGET_CFGLIST}; buildPhases = ({WIDGET_SRC_PHASE}, {WIDGET_FW_PHASE}); buildRules = (); dependencies = (); name = OpenCodeWidgetExtension; productName = OpenCodeWidgetExtension; productReference = {WIDGET_PROD}; productType = "com.apple.product-type.app-extension"; };
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		{PROJ_ROOT} = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = YES; LastSwiftUpdateCheck = 1600; LastUpgradeCheck = 1600; }; buildConfigurationList = {PROJ_CFGLIST}; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base); mainGroup = {MAIN_GROUP}; productRefGroup = {PRODUCTS_GROUP}; projectDirPath = ""; projectRoot = ""; targets = ({APP_TGT}, {WIDGET_TGT}); };
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		{APP_RES_PHASE} = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = ({ICON_BF}); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		{APP_SRC_PHASE} = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = ({APP_SRC_BF}, {FETCHER_BF}, {HELPER_BF}); runOnlyForDeploymentPostprocessing = 0; };

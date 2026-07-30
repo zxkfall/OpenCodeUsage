@@ -14,6 +14,7 @@
 		5694A430BB4631D21A0BD0DB /* Provider.swift */ = {isa = PBXBuildFile; fileRef = 7F28890294F4F2CEA931EDCC; };
 		D3CACE9DB5E6D81DEC5555AD /* WidgetViews.swift */ = {isa = PBXBuildFile; fileRef = 83F88B1A40A9922E189F873F; };
 		B0B3F68D1A34405A525AA606 /* WidgetBundle.swift */ = {isa = PBXBuildFile; fileRef = 794BB16FF239928E64355D42; };
+		6E9F881153BB73342A55ADD1 /* AppIcon.icns */ = {isa = PBXBuildFile; fileRef = A03220219F5052E538B4D8D0; };
 		523BFB66E759D0F478C61702 /* Widget in Embed */ = {isa = PBXBuildFile; fileRef = 1E7E09F6F59B0D4D7A09BC16; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -25,6 +26,7 @@
 		8845B84C31AD8E7F186CCD82 /* App.entitlements */ = {isa = PBXFileReference; path = App/App.entitlements; sourceTree = "<group>"; };
 		C8442FD96C58DB03F400D649 /* UsageFetcher.swift */ = {isa = PBXFileReference; path = Shared/UsageFetcher.swift; sourceTree = "<group>"; };
 		A89F5D1A036A4D0ED1A215C7 /* AppGroupHelper.swift */ = {isa = PBXFileReference; path = Shared/AppGroupHelper.swift; sourceTree = "<group>"; };
+		A03220219F5052E538B4D8D0 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = App/AppIcon.icns; sourceTree = "<group>"; };
 		7F28890294F4F2CEA931EDCC /* Provider.swift */ = {isa = PBXFileReference; path = WidgetExtension/Provider.swift; sourceTree = "<group>"; };
 		83F88B1A40A9922E189F873F /* WidgetViews.swift */ = {isa = PBXFileReference; path = WidgetExtension/WidgetViews.swift; sourceTree = "<group>"; };
 		794BB16FF239928E64355D42 /* WidgetBundle.swift */ = {isa = PBXFileReference; path = WidgetExtension/WidgetBundle.swift; sourceTree = "<group>"; };
@@ -34,20 +36,24 @@
 
 /* Begin PBXGroup section */
 		0A85897F1A32FE9B91C081CD = {isa = PBXGroup; children = (3DFE442710E429386E53D077, D1E034B8DB47876DC6E7FED3, FC1A8818F8805D28F3E6F6DF, B88D7E26791946AEFDCC8BB7); sourceTree = "<group>"; };
-		3DFE442710E429386E53D077 = {isa = PBXGroup; children = (8A5FA62F001E6CD7CC7A4E89, DAE95F30FEE558549B59ED34, 8845B84C31AD8E7F186CCD82); sourceTree = "<group>"; };
+		3DFE442710E429386E53D077 = {isa = PBXGroup; children = (8A5FA62F001E6CD7CC7A4E89, DAE95F30FEE558549B59ED34, 8845B84C31AD8E7F186CCD82, A03220219F5052E538B4D8D0); sourceTree = "<group>"; };
 		D1E034B8DB47876DC6E7FED3 = {isa = PBXGroup; children = (7F28890294F4F2CEA931EDCC, 83F88B1A40A9922E189F873F, 794BB16FF239928E64355D42, 4DD38507A1451C17740130CB, 1A62F29B970153E7F2CDACE4); sourceTree = "<group>"; };
 		FC1A8818F8805D28F3E6F6DF = {isa = PBXGroup; children = (C8442FD96C58DB03F400D649, A89F5D1A036A4D0ED1A215C7); sourceTree = "<group>"; };
 		B88D7E26791946AEFDCC8BB7 = {isa = PBXGroup; children = (E7A1DE34D9038E37B8AA0A97, 1E7E09F6F59B0D4D7A09BC16); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		9F9C49C79EBAC45500E52663 = {isa = PBXNativeTarget; buildConfigurationList = 821683190F4188342CC9A96B; buildPhases = (DA0052620756B38ED82024FE, 944FFA62E94063ACF8326ED6, 79266744EB720B5B7651AC47); buildRules = (); dependencies = (); name = "OpenCode Usage"; productName = "OpenCode Usage"; productReference = E7A1DE34D9038E37B8AA0A97; productType = "com.apple.product-type.application"; };
+		9F9C49C79EBAC45500E52663 = {isa = PBXNativeTarget; buildConfigurationList = 821683190F4188342CC9A96B; buildPhases = (DA0052620756B38ED82024FE, 944FFA62E94063ACF8326ED6, 0165F6835E8D7780C6BBE425, 79266744EB720B5B7651AC47); buildRules = (); dependencies = (); name = "OpenCode Usage"; productName = "OpenCode Usage"; productReference = E7A1DE34D9038E37B8AA0A97; productType = "com.apple.product-type.application"; };
 		B96D94A2CBB1822C9B8F3782 = {isa = PBXNativeTarget; buildConfigurationList = E43FC5101CD8F5DDF5ADFB25; buildPhases = (48A2903919C8FD09B5F558CD, 7C15D919CA67ED8118572310); buildRules = (); dependencies = (); name = OpenCodeWidgetExtension; productName = OpenCodeWidgetExtension; productReference = 1E7E09F6F59B0D4D7A09BC16; productType = "com.apple.product-type.app-extension"; };
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		71979C0F870BEF1A349CF3F3 = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = YES; LastSwiftUpdateCheck = 1600; LastUpgradeCheck = 1600; }; buildConfigurationList = 22B2B3FE2898D04F220DBC58; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base); mainGroup = 0A85897F1A32FE9B91C081CD; productRefGroup = B88D7E26791946AEFDCC8BB7; projectDirPath = ""; projectRoot = ""; targets = (9F9C49C79EBAC45500E52663, B96D94A2CBB1822C9B8F3782); };
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0165F6835E8D7780C6BBE425 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (6E9F881153BB73342A55ADD1); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		DA0052620756B38ED82024FE = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (82C9AAEBF330EA1E81251A00, 06404C4AF60C860360A6470D, 75A22BF9C923656575E7BC74); runOnlyForDeploymentPostprocessing = 0; };
