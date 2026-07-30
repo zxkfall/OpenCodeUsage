@@ -22,7 +22,15 @@ macOS 菜单栏 App + WidgetKit 小组件，显示 OpenCode Go API 用量（滚�
 
 ## 小组件
 
-App 首次启动后，在通知中心添加 "OpenCode Go Usage" 小组件。
+App 启动后，**桌面右键 → 编辑小组件**，找到 "OpenCode Go Usage" 添加。
+
+移除：桌面右键 widget → 移除小组件，或终端：
+
+```bash
+pluginkit -v -m -i com.flywinter.opencode-usage-bar.widget  # 查看注册路径
+pluginkit -r <显示的.appex路径>
+killall NotificationCenter
+```
 
 ## 开发构建
 
