@@ -43,7 +43,7 @@ Two targets (both code-signed automatically):
 ## Conventions
 
 - **使用中文回复** — 所有回答、解释、分析都使用中文
-- Commit messages in English, short and descriptive
+- Commit messages 使用 [Conventional Commits](https://www.conventionalcommits.org) 格式（`feat:`, `fix:`, `chore:` 等）
 - **禁止写入敏感信息** — 不要在任何文件中写入真实凭据、token、API key 等敏感数据
 - **敏感信息不得被 git 追踪** — 写入敏感信息的文件（如 `.env`、`credentials.json`）必须加入 `.gitignore`
 - Large output files (*.json, *.log, *.dmg) can be omitted
