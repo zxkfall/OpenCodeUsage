@@ -33,23 +33,50 @@ struct OpenCodeUsageWidgetEntryView: View {
 
 struct SmallView: View {
     let entry: UsageEntry
+
+    private var pct: Int {
+        switch entry.metric {
+        case .rolling: return entry.rollingPct
+        case .weekly: return entry.weeklyPct
+        case .monthly: return entry.monthlyPct
+        case .max: return max(entry.rollingPct, entry.weeklyPct, entry.monthlyPct)
+        case .min: return min(entry.rollingPct, entry.weeklyPct, entry.monthlyPct)
+        }
+    }
+
+    private var windowLabel: String {
+        switch entry.metric {
+        case .rolling: return "5h"
+        case .weekly: return "Week"
+        case .monthly: return "Month"
+        case .max:
+            if pct == entry.rollingPct { return "Max·5h" }
+            if pct == entry.weeklyPct { return "Max·Week" }
+            return "Max·Month"
+        case .min:
+            if pct == entry.rollingPct { return "Min·5h" }
+            if pct == entry.weeklyPct { return "Min·Week" }
+            return "Min·Month"
+        }
+    }
+
     var body: some View {
         VStack(spacing: 6) {
-            Image(systemName: "brain.head.profile")
-                .font(.title3)
-                .foregroundColor(color(entry.monthlyPct))
-            Text("\(entry.monthlyPct)%")
+            if !entry.accountName.isEmpty {
+                Text(entry.accountName)
+                    .font(.system(size: 8))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+            Text("\(pct)%")
                 .font(.system(.title, design: .monospaced))
                 .bold()
-            Text("monthly")
+            Text(windowLabel)
                 .font(.caption2)
                 .foregroundColor(.secondary)
-            Gauge(value: Double(entry.monthlyPct), in: 0...100) {}
-                .tint(color(entry.monthlyPct))
+            Gauge(value: Double(pct), in: 0...100) {}
+                .tint(color(pct))
                 .gaugeStyle(.accessoryLinearCapacity)
-            Text("resets \(entry.monthlyReset)")
-                .font(.system(size: 8))
-                .foregroundColor(.secondary)
         }
         .padding()
     }
@@ -59,6 +86,12 @@ struct MediumView: View {
     let entry: UsageEntry
     var body: some View {
         VStack(spacing: 6) {
+            if !entry.accountName.isEmpty {
+                Text(entry.accountName)
+                    .font(.system(size: 9))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
             WideSegmentView(label: "Rolling (5h)", pct: entry.rollingPct, reset: entry.rollingReset)
             WideSegmentView(label: "Weekly", pct: entry.weeklyPct, reset: entry.weeklyReset)
             WideSegmentView(label: "Monthly", pct: entry.monthlyPct, reset: entry.monthlyReset)
@@ -77,7 +110,13 @@ struct LargeView: View {
                     .foregroundColor(.orange)
                 Text("OpenCode Go Usage")
                     .font(.system(size: 12, weight: .semibold))
-                Spacer()
+                if !entry.accountName.isEmpty {
+                    Spacer()
+                    Text(entry.accountName)
+                        .font(.system(size: 9))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
             }
             .padding(.horizontal, 10).padding(.top, 8).padding(.bottom, 4)
 
@@ -131,33 +170,6 @@ struct CompactRow: View {
                 .font(.system(size: 9))
                 .foregroundColor(.secondary)
         }
-    }
-}
-
-// MARK: - Reusable
-
-struct SegmentView: View {
-    let label: String
-    let pct: Int
-    let reset: String
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text("\(pct)%")
-                .font(.system(.title2, design: .monospaced))
-                .bold()
-                .foregroundColor(color(pct))
-            Gauge(value: Double(pct), in: 0...100) {}
-                .tint(color(pct))
-                .gaugeStyle(.accessoryLinearCapacity)
-            Text(reset)
-                .font(.system(size: 8))
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
     }
 }
 

@@ -14,7 +14,7 @@ class SettingsWindowController: NSObject {
         }
 
         let win = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 360),
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 560),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false
@@ -33,80 +33,172 @@ class SettingsWindowController: NSObject {
 
 struct SettingsView: View {
     @ObservedObject var fetcher: UsageFetcher
-    @State private var workspaceId: String = ""
-    @State private var authCookie: String = ""
-    @State private var saved = false
     let onDismiss: () -> Void
+
+    @State private var accounts: [Account] = []
+    @State private var selection: AccountSelection = .fixed
+    @State private var fixedAccountIndex = 0
+    @State private var rotationInterval = 10
+    @State private var saved = false
 
     init(fetcher: UsageFetcher, onDismiss: @escaping () -> Void) {
         self.fetcher = fetcher
         self.onDismiss = onDismiss
-        let creds = KeychainManager.shared.load()
-        _workspaceId = State(initialValue: creds?.workspaceId ?? "")
-        _authCookie = State(initialValue: creds?.authCookie ?? "")
+        let settings = fetcher.settings
+        _accounts = State(initialValue: settings.accounts.isEmpty ? [Account()] : settings.accounts)
+        _selection = State(initialValue: settings.selection)
+        _fixedAccountIndex = State(initialValue: settings.fixedAccountIndex)
+        _rotationInterval = State(initialValue: settings.rotationIntervalSec)
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("OpenCode Go Usage Settings")
-                .font(.title2)
-                .bold()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("OpenCode Go Usage Settings")
+                    .font(.title2)
+                    .bold()
 
-            Divider()
+                Divider()
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Workspace ID")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                TextField("wrk_01XXXXXXXX", text: $workspaceId)
-                    .textFieldStyle(.roundedBorder)
-                    .font(.system(.body, design: .monospaced))
-            }
+                // Accounts section
+                Text("账户 (\(accounts.count)/\(AppSettings.maxAccounts))")
+                    .font(.headline)
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Auth Cookie")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                SecureField("Fe26.2**...", text: $authCookie)
-                    .textFieldStyle(.roundedBorder)
-                    .font(.system(.body, design: .monospaced))
-            }
+                ForEach(Array(accounts.enumerated()), id: \.element.id) { index, _ in
+                    accountEditor(index: index)
+                }
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("How to find these:")
+                if accounts.count < AppSettings.maxAccounts {
+                    Button("+ 添加账户") {
+                        accounts.append(Account())
+                    }
+                    .disabled(accounts.count >= AppSettings.maxAccounts)
+                }
+
+                Divider()
+
+                // Display config section
+                Text("显示配置")
+                    .font(.headline)
+
+                Picker("账户间规则", selection: $selection) {
+                    ForEach(AccountSelection.allCases, id: \.self) { s in
+                        Text(s.displayName).tag(s)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                if selection == .fixed {
+                    Picker("显示账户", selection: $fixedAccountIndex) {
+                        ForEach(Array(accounts.enumerated()), id: \.element.id) { index, acc in
+                            Text(acc.displayName).tag(index)
+                        }
+                    }
+                    .disabled(accounts.isEmpty)
+                }
+
+                if selection == .rotate {
+                    Stepper("轮换间隔: \(rotationInterval) 秒", value: $rotationInterval, in: 1...300)
+                }
+
+                Divider()
+
+                // How to find credentials
+                Text("如何获取凭据:")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Text("1. Open https://opencode.ai/auth in browser and sign in")
                     .font(.caption2)
+                    .foregroundColor(.secondary)
                 Text("2. Go to your Go workspace page (URL contains wrk_.../go)")
                     .font(.caption2)
+                    .foregroundColor(.secondary)
                 Text("3. DevTools → Application → Cookies → opencode.ai")
                     .font(.caption2)
+                    .foregroundColor(.secondary)
                 Text("4. Copy the \"auth\" cookie value (starts with Fe26.2)")
                     .font(.caption2)
-            }
-            .foregroundColor(.secondary)
+                    .foregroundColor(.secondary)
 
-            HStack {
-                if saved {
-                    Text("Saved").foregroundColor(.green)
+                HStack {
+                    if saved {
+                        Text("Saved").foregroundColor(.green)
+                    }
+                    Spacer()
+                    Button("Save & Fetch Now") {
+                        let cleaned = accounts.map { acc in
+                            Account(id: acc.id,
+                                    name: acc.name.trimmingCharacters(in: .whitespaces),
+                                    workspaceId: acc.workspaceId.trimmingCharacters(in: .whitespaces),
+                                    authCookie: acc.authCookie.trimmingCharacters(in: .whitespaces),
+                                    metric: acc.metric)
+                        }.filter { !$0.workspaceId.isEmpty && !$0.authCookie.isEmpty }
+
+                        var newSettings = AppSettings()
+                        newSettings.accounts = cleaned
+                        newSettings.selection = selection
+                        newSettings.fixedAccountIndex = min(fixedAccountIndex, max(cleaned.count - 1, 0))
+                        newSettings.rotationIntervalSec = rotationInterval
+
+                        KeychainManager.shared.saveSettings(newSettings)
+                        fetcher.settings = newSettings
+                        fetcher.startRotation()
+                        saved = true
+                        fetcher.fetch()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { saved = false }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { onDismiss() }
+                    }
+                    .keyboardShortcut(.return)
+                    .disabled(accounts.filter { !$0.workspaceId.isEmpty && !$0.authCookie.isEmpty }.isEmpty)
                 }
-                Spacer()
-                Button("Save & Fetch Now") {
-                    let creds = Credentials(workspaceId: workspaceId.trimmingCharacters(in: .whitespaces),
-                                            authCookie: authCookie.trimmingCharacters(in: .whitespaces))
-                    KeychainManager.shared.save(creds)
-                    saved = true
-                    fetcher.fetch()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) { saved = false }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { onDismiss() }
-                }
-                .keyboardShortcut(.return)
-                .disabled(workspaceId.isEmpty || authCookie.isEmpty)
             }
+            .padding(24)
+            .frame(minWidth: 520)
         }
-        .padding(24)
-        .frame(minWidth: 440)
+        .frame(minWidth: 560, minHeight: 500)
+    }
+
+    @ViewBuilder
+    private func accountEditor(index: Int) -> some View {
+        let binding = $accounts[index]
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("账户 \(index + 1)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Button("删除") {
+                    accounts.remove(at: index)
+                }
+                .font(.caption2)
+                .buttonStyle(.plain)
+                .foregroundColor(.red)
+            }
+
+            HStack(spacing: 8) {
+                TextField("名称(可选)", text: binding.name)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 120)
+                Picker("", selection: binding.metric) {
+                    ForEach(WindowMetric.allCases, id: \.self) { m in
+                        Text(m.displayName).tag(m)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 100)
+            }
+
+            TextField("Workspace ID", text: binding.workspaceId)
+                .textFieldStyle(.roundedBorder)
+                .font(.system(.body, design: .monospaced))
+
+            SecureField("Auth Cookie", text: binding.authCookie)
+                .textFieldStyle(.roundedBorder)
+                .font(.system(.body, design: .monospaced))
+        }
+        .padding(8)
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(6)
     }
 }
 
@@ -129,8 +221,8 @@ struct OpenCodeUsageApp: App {
     // MARK: - Menu Bar Label
 
     private var menuBarText: String {
-        if let usage = fetcher.usage, usage.error == nil {
-            return "Go \(usage.monthly.usagePercent)%"
+        if let value = fetcher.menuBarValue() {
+            return "Go \(value.pct)%"
         } else if fetcher.error != nil {
             return "Go"
         } else if fetcher.isLoading {
@@ -141,8 +233,8 @@ struct OpenCodeUsageApp: App {
     }
 
     private var menuBarColor: Color {
-        if let usage = fetcher.usage, usage.error == nil {
-            return color(for: usage.monthly.usagePercent)
+        if let value = fetcher.menuBarValue() {
+            return color(for: value.pct)
         }
         return .orange
     }
@@ -158,7 +250,7 @@ struct OpenCodeUsageApp: App {
 
     @ViewBuilder
     private var menuContent: some View {
-        if let usage = fetcher.usage, usage.error == nil {
+        if !fetcher.accountUsages.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
                 // Title bar
                 HStack {
@@ -177,9 +269,11 @@ struct OpenCodeUsageApp: App {
 
                 Divider()
 
-                WindowRow(label: "5h", window: usage.rolling)
-                WindowRow(label: "Week", window: usage.weekly)
-                WindowRow(label: "Month", window: usage.monthly)
+                ForEach(fetcher.settings.accounts) { account in
+                    if let usage = fetcher.accountUsages.first(where: { $0.accountId == account.id }) {
+                        AccountMenuRow(account: account, usage: usage)
+                    }
+                }
 
                 Divider()
 
@@ -239,7 +333,70 @@ struct OpenCodeUsageApp: App {
     }
 }
 
-// MARK: - Reusable Views
+// MARK: - Account Menu Row (expandable)
+
+struct AccountMenuRow: View {
+    let account: Account
+    let usage: AccountUsage
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Summary line
+            Button(action: { withAnimation(.easeInOut(duration: 0.15)) { expanded.toggle() } }) {
+                HStack(spacing: 6) {
+                    Image(systemName: expanded ? "chevron.down" : "chevron.right")
+                        .font(.system(size: 9))
+                        .foregroundColor(.secondary)
+                    Text(account.displayName)
+                        .font(.system(size: 11, weight: .semibold))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    Spacer()
+                    summaryLabel
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+
+            if expanded {
+                VStack(alignment: .leading, spacing: 0) {
+                    WindowRow(label: "5h", window: usage.rolling)
+                    WindowRow(label: "Week", window: usage.weekly)
+                    WindowRow(label: "Month", window: usage.monthly)
+                }
+                .padding(.leading, 8)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var summaryLabel: some View {
+        let result = representativeResult(for: usage, metric: account.metric)
+        let windowTag: String = {
+            switch account.metric {
+            case .max: return "Max·\(result.window.displayName)"
+            case .min: return "Min·\(result.window.displayName)"
+            default: return result.window.displayName
+            }
+        }()
+        HStack(spacing: 5) {
+            Text(windowTag)
+                .font(.system(size: 9))
+                .foregroundColor(.secondary)
+                .frame(width: 62, alignment: .trailing)
+            Text("\(result.pct)%")
+                .font(.system(size: 11, weight: .bold, design: .monospaced))
+                .foregroundColor(result.pct > 80 ? .red :
+                                  result.pct > 50 ? .orange : .green)
+                .frame(width: 34, alignment: .trailing)
+        }
+    }
+}
+
+// MARK: - Window Row
 
 struct WindowRow: View {
     let label: String

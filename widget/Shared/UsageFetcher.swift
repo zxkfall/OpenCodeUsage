@@ -1,10 +1,14 @@
 import Foundation
 import Security
 
+// MARK: - Legacy Credentials (for migration)
+
 struct Credentials: Codable {
-    var workspaceId: String  // wrk_01XXXXXXXX
-    var authCookie: String   // Fe26.2**...
+    var workspaceId: String
+    var authCookie: String
 }
+
+// MARK: - Keychain Manager
 
 class KeychainManager {
     static let shared = KeychainManager()
@@ -25,37 +29,49 @@ class KeychainManager {
         return q
     }
 
-    func save(_ credentials: Credentials) {
-        guard let data = try? JSONEncoder().encode(credentials) else { return }
-        delete()
-        SecItemAdd(query(service: service, data: data) as CFDictionary, nil)
-    }
-
-    func load() -> Credentials? {
-        var item: CFTypeRef?
+    private func loadData(service: String) -> Data? {
         var q = query(service: service)
         q[kSecReturnData as String] = true
         q[kSecMatchLimit as String] = kSecMatchLimitOne
+        var item: CFTypeRef?
+        guard SecItemCopyMatching(q as CFDictionary, &item) == errSecSuccess,
+              let data = item as? Data else { return nil }
+        return data
+    }
 
-        // Try new service name first
-        if SecItemCopyMatching(q as CFDictionary, &item) == errSecSuccess,
-           let data = item as? Data {
-            return try? JSONDecoder().decode(Credentials.self, from: data)
+    func loadSettings() -> AppSettings {
+        // New format: AppSettings JSON
+        if let data = loadData(service: service),
+           let settings = try? JSONDecoder().decode(AppSettings.self, from: data) {
+            return settings
         }
 
-        // Migrate from old service name
-        var oldQ = query(service: oldService)
-        oldQ[kSecReturnData as String] = true
-        oldQ[kSecMatchLimit as String] = kSecMatchLimitOne
-        if SecItemCopyMatching(oldQ as CFDictionary, &item) == errSecSuccess,
-           let data = item as? Data,
-           let creds = try? JSONDecoder().decode(Credentials.self, from: data) {
-            save(creds)
+        // Migrate from old single-account Credentials format
+        if let oldData = loadData(service: service),
+           let creds = try? JSONDecoder().decode(Credentials.self, from: oldData) {
+            var settings = AppSettings()
+            settings.accounts = [Account(name: "", workspaceId: creds.workspaceId,
+                                         authCookie: creds.authCookie, metric: .monthly)]
+            saveSettings(settings)
+            return settings
+        }
+        if let oldData = loadData(service: oldService),
+           let creds = try? JSONDecoder().decode(Credentials.self, from: oldData) {
+            var settings = AppSettings()
+            settings.accounts = [Account(name: "", workspaceId: creds.workspaceId,
+                                         authCookie: creds.authCookie, metric: .monthly)]
+            saveSettings(settings)
             SecItemDelete(query(service: oldService) as CFDictionary)
-            return creds
+            return settings
         }
 
-        return nil
+        return AppSettings()
+    }
+
+    func saveSettings(_ settings: AppSettings) {
+        guard let data = try? JSONEncoder().encode(settings) else { return }
+        SecItemDelete(query(service: service) as CFDictionary)
+        SecItemAdd(query(service: service, data: data) as CFDictionary, nil)
     }
 
     func delete() {
@@ -64,43 +80,20 @@ class KeychainManager {
     }
 }
 
-// MARK: - Usage Data Models
-
-struct UsageWindow: Codable {
-    let status: String
-    let resetInSec: Int
-    let usagePercent: Int
-
-    var pct: Double { Double(usagePercent) }
-    var resetDescription: String {
-        if resetInSec <= 0 { return "now" }
-        let h = resetInSec / 3600
-        let m = (resetInSec % 3600) / 60
-        if h > 24 { return "\(h / 24)d \(h % 24)h" }
-        if h > 0 { return "\(h)h \(m)m" }
-        return "\(m)m"
-    }
-}
-
-struct GoUsage: Codable {
-    let rolling: UsageWindow
-    let weekly: UsageWindow
-    let monthly: UsageWindow
-    let region: [String]
-    let useBalance: Bool
-    let error: String?
-}
-
 // MARK: - Usage Fetcher
 
 class UsageFetcher: ObservableObject {
-    @Published var usage: GoUsage?
+    @Published var accountUsages: [AccountUsage] = []
+    @Published var settings: AppSettings
     @Published var isLoading = false
     @Published var error: String?
+    @Published var currentRotateIndex = 0
 
     private var timer: Timer?
+    private var rotateTimer: Timer?
 
     init() {
+        settings = KeychainManager.shared.loadSettings()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
             self?.start()
         }
@@ -111,78 +104,158 @@ class UsageFetcher: ObservableObject {
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             self?.fetch()
         }
+        startRotation()
+    }
+
+    func startRotation() {
+        rotateTimer?.invalidate()
+        guard settings.accounts.count > 1, settings.selection == .rotate else {
+            currentRotateIndex = 0
+            return
+        }
+        let interval = Double(max(settings.rotationIntervalSec, 1))
+        rotateTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+            guard let self = self, !self.settings.accounts.isEmpty else { return }
+            self.currentRotateIndex = (self.currentRotateIndex + 1) % self.settings.accounts.count
+        }
     }
 
     func fetch() {
-        guard let creds = KeychainManager.shared.load() else {
+        settings = KeychainManager.shared.loadSettings()
+        let accounts = settings.accounts
+        guard !accounts.isEmpty else {
             DispatchQueue.main.async { self.error = "Not configured. Open Settings to set up." }
-            return
-        }
-        guard !creds.workspaceId.isEmpty, !creds.authCookie.isEmpty else {
-            DispatchQueue.main.async { self.error = "Missing credentials." }
             return
         }
 
         DispatchQueue.main.async { self.isLoading = true }
+        let group = DispatchGroup()
+        var results: [AccountUsage] = []
+        let lock = NSLock()
 
-        let url = URL(string: "https://opencode.ai/workspace/\(creds.workspaceId)/go")!
+        for account in accounts {
+            group.enter()
+            fetchAccount(account) { accountUsage in
+                lock.lock()
+                if let au = accountUsage { results.append(au) }
+                lock.unlock()
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) { [weak self] in
+            guard let self = self else { return }
+            results.sort { $0.accountId.uuidString < $1.accountId.uuidString }
+            self.accountUsages = results
+            self.isLoading = false
+            if results.count < accounts.count {
+                self.error = "部分账户拉取失败"
+            } else {
+                self.error = nil
+            }
+            self.writeWidgetPayload()
+        }
+    }
+
+    private func fetchAccount(_ account: Account, completion: @escaping (AccountUsage?) -> Void) {
+        guard !account.workspaceId.isEmpty, !account.authCookie.isEmpty else {
+            completion(nil)
+            return
+        }
+
+        let url = URL(string: "https://opencode.ai/workspace/\(account.workspaceId)/go")!
         var request = URLRequest(url: url, timeoutInterval: 15)
-        request.setValue("auth=\(creds.authCookie)", forHTTPHeaderField: "Cookie")
+        request.setValue("auth=\(account.authCookie)", forHTTPHeaderField: "Cookie")
         request.setValue("Mozilla/5.0", forHTTPHeaderField: "User-Agent")
 
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            guard let self = self else { return }
+            guard let self = self else { completion(nil); return }
 
             if let error = error {
-                DispatchQueue.main.async {
-                    self.error = error.localizedDescription
-                    self.isLoading = false
-                }
+                completion(self.errorAccount(account, message: error.localizedDescription))
                 return
             }
 
             guard let data = data, let html = String(data: data, encoding: .utf8) else {
-                DispatchQueue.main.async {
-                    self.error = "Invalid response"
-                    self.isLoading = false
-                }
+                completion(self.errorAccount(account, message: "Invalid response"))
                 return
             }
 
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                DispatchQueue.main.async {
-                    self.error = "HTTP \(httpResponse.statusCode) — cookie may have expired"
-                    self.isLoading = false
-                }
+                completion(self.errorAccount(account, message: "HTTP \(httpResponse.statusCode) — cookie may have expired"))
                 return
             }
 
             let parsed = self.parseUsage(from: html)
-            let encoded = try? JSONEncoder().encode(parsed)
-
-            DispatchQueue.main.async {
-                self.usage = parsed
-                self.error = parsed.error
-                self.isLoading = false
-            }
-
-            // Write to App Group for widget AND to widget's sandbox
-            if let encoded = encoded {
-                // App Group containers
-                let home = FileManager.default.homeDirectoryForCurrentUser
-                let groupDir = home.appendingPathComponent("Library/Group Containers")
-                if let contents = try? FileManager.default.contentsOfDirectory(atPath: groupDir.path) {
-                    for item in contents where item.contains("opencode") {
-                        let fileURL = groupDir.appendingPathComponent(item).appendingPathComponent("usage.json")
-                        try? encoded.write(to: fileURL)
-                    }
-                }
-                // Widget's sandbox container (bypasses App Group sandbox issue)
-                let widgetSandbox = home.appendingPathComponent("Library/Containers/com.flywinter.opencode-usage-bar.widget/Data/Documents")
-                try? FileManager.default.createDirectory(at: widgetSandbox, withIntermediateDirectories: true)
-                try? encoded.write(to: widgetSandbox.appendingPathComponent("usage.json"))
+            if let err = parsed.error {
+                completion(AccountUsage(accountId: account.id, name: account.displayName,
+                                        rolling: parsed.rolling, weekly: parsed.weekly,
+                                        monthly: parsed.monthly, error: err))
+            } else {
+                completion(AccountUsage(accountId: account.id, name: account.displayName, usage: parsed))
             }
         }.resume()
+    }
+
+    private func errorAccount(_ account: Account, message: String) -> AccountUsage {
+        AccountUsage(accountId: account.id, name: account.displayName,
+                     rolling: UsageWindow(status: "error", resetInSec: 0, usagePercent: 0),
+                     weekly: UsageWindow(status: "error", resetInSec: 0, usagePercent: 0),
+                     monthly: UsageWindow(status: "error", resetInSec: 0, usagePercent: 0),
+                     error: message)
+    }
+
+    private func writeWidgetPayload() {
+        let payload = WidgetPayload(accounts: accountUsages, settings: settings.nonSecretSettings)
+        guard let encoded = try? JSONEncoder().encode(payload) else { return }
+
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        // App Group containers
+        let groupDir = home.appendingPathComponent("Library/Group Containers")
+        if let contents = try? FileManager.default.contentsOfDirectory(atPath: groupDir.path) {
+            for item in contents where item.contains("opencode") {
+                let fileURL = groupDir.appendingPathComponent(item).appendingPathComponent("usage.json")
+                try? encoded.write(to: fileURL)
+            }
+        }
+        // Widget's sandbox container
+        let widgetSandbox = home.appendingPathComponent("Library/Containers/com.flywinter.opencode-usage-bar.widget/Data/Documents")
+        try? FileManager.default.createDirectory(at: widgetSandbox, withIntermediateDirectories: true)
+        try? encoded.write(to: widgetSandbox.appendingPathComponent("usage.json"))
+    }
+
+    // MARK: - Menu Bar Value
+
+    func menuBarValue() -> (pct: Int, color: Int, text: String)? {
+        guard !accountUsages.isEmpty else { return nil }
+        let accounts = settings.accounts
+
+        // Build representative results per account, preserving settings order
+        var reps: [(account: Account, result: MetricResult)] = []
+        for account in accounts {
+            guard let usage = accountUsages.first(where: { $0.accountId == account.id }) else { continue }
+            reps.append((account, representativeResult(for: usage, metric: account.metric)))
+        }
+        guard !reps.isEmpty else { return nil }
+
+        let selection = settings.selection
+
+        switch selection {
+        case .fixed:
+            let idx = min(settings.fixedAccountIndex, reps.count - 1)
+            let r = reps[idx].result
+            return (r.pct, r.pct, "\(r.window.displayName) \(r.pct)%")
+        case .max:
+            let best = reps.max(by: { $0.result.pct < $1.result.pct })!
+            return (best.result.pct, best.result.pct, "\(best.result.window.displayName) \(best.result.pct)%")
+        case .min:
+            let worst = reps.min(by: { $0.result.pct < $1.result.pct })!
+            return (worst.result.pct, worst.result.pct, "\(worst.result.window.displayName) \(worst.result.pct)%")
+        case .rotate:
+            let idx = min(currentRotateIndex, reps.count - 1)
+            let r = reps[idx].result
+            return (r.pct, r.pct, "\(r.window.displayName) \(r.pct)%")
+        }
     }
 
     private func parseUsage(from html: String) -> GoUsage {

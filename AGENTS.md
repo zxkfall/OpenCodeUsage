@@ -55,10 +55,12 @@ GitHub Actions (`.github/workflows/release.yml`):
 
 ## Key Architecture Details
 
-- **Data source**: HTTP scraping — `UsageFetcher` fetches `https://opencode.ai/workspace/{id}/go`, parses usage from HTML regex
-- **Credentials**: macOS Keychain (`com.flywinter.opencode-usage-bar`) — workspace ID + auth cookie. Configured via gear icon in menu bar dropdown. Old `opencode.usage-bar` entries auto-migrated on load.
-- **Data sharing**: App (non-sandboxed) writes `usage.json` to both App Group containers AND the Widget's own sandbox (`~/Library/Containers/...widget/Data/Documents/usage.json`). Widget (sandboxed) reads from its own sandbox first, falls back to App Group. This bypasses a macOS sandbox bug where `Data(contentsOf:)` on App Group files fails even though `fileExists` succeeds.
-- **Refresh**: Menu bar app polls every 5 min. WidgetKit timeline refreshes every 5 min.
+- **Data source**: HTTP scraping — `UsageFetcher` fetches `https://opencode.ai/workspace/{id}/go` per account, parses usage from HTML regex
+- **Multi-account**: Up to 3 accounts. Per-account `metric` (rolling/weekly/monthly/max/min) picks that account's representative value. Global `selection` (fixed/max/min/rotate) picks which account the menu bar shows. Rotation interval default 10s.
+- **Credentials**: `AppSettings` (accounts + config) stored as one JSON in macOS Keychain (`com.flywinter.opencode-usage-bar`). Auto-migrates from legacy single-account `Credentials` format. Configured via gear icon in menu bar dropdown.
+- **Data sharing**: App (non-sandboxed) writes `usage.json` (combined `WidgetPayload` with all accounts + non-secret settings) to both App Group containers AND the Widget's own sandbox (`~/Library/Containers/...widget/Data/Documents/usage.json`). Widget (sandboxed) reads from its own sandbox first, falls back to App Group. This bypasses a macOS sandbox bug where `Data(contentsOf:)` on App Group files fails even though `fileExists` succeeds.
+- **Shared models** live in `Shared/AppGroupHelper.swift` (compiled into both App and Widget targets). Keep widget-visible types (models, `representativeResult`, `formatReset`) there — never in `UsageFetcher.swift` which is App-only.
+- **Refresh**: Menu bar app polls every 5 min. WidgetKit timeline refreshes every 5 min (multi-account + rotate → timeline has one entry per account, 10s apart).
 - **MenuBarExtra quirk**: Must use `.menuBarExtraStyle(.window)`. Default `.menu` style treats VStack children as NSMenuItem, breaking HStack layouts (elements render vertically, progress bars invisible).
 - **WidgetKit requires sandbox**: The widget extension MUST have `com.apple.security.app-sandbox = true`, otherwise it won't be registered by the system. The menu bar app is non-sandboxed.
 
