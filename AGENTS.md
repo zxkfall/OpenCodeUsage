@@ -67,6 +67,7 @@ GitHub Actions (`.github/workflows/release.yml`):
 ## Conventions
 
 - **使用中文回复** — 所有回答、解释、分析都使用中文
+- **查看图片用 vision agent** — 若需要检查/生成图片（banner、图标等视觉产物），用 `Task` 工具调 `vision` 子代理查看，因为主模型不支持图像输入。生成图片后用 vision 复查渲染效果。
 - Commit messages 使用 [Conventional Commits](https://www.conventionalcommits.org) 格式（`feat:`, `fix:`, `chore:` 等）
 - **禁止写入敏感信息** — 不要在任何文件中写入真实凭据、token、API key 等敏感数据
 - **敏感信息不得被 git 追踪** — 写入敏感信息的文件（如 `.env`、`credentials.json`）必须加入 `.gitignore`

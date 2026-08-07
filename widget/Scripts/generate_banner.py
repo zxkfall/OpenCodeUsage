@@ -23,6 +23,7 @@ BAR_BG = (60, 60, 68, 255)
 
 FONT_TITLE = "/System/Library/Fonts/SF-Pro-Display-Bold.otf"
 FONT_SUB = "/System/Library/Fonts/SF-Pro-Display-Regular.otf"
+FONT_CJK = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf"  # CJK-capable TTF for Chinese text
 
 
 def rounded_bg(img: Image.Image, radius: int) -> Image.Image:
@@ -69,9 +70,9 @@ def generate():
     except Exception:
         title_font = ImageFont.load_default()
     try:
-        sub_font = ImageFont.truetype(FONT_SUB, 30)
+        sub_font = ImageFont.truetype(FONT_CJK, 30)
     except Exception:
-        sub_font = ImageFont.load_default()
+        sub_font = ImageFont.truetype(FONT_SUB, 30)
     try:
         small_font = ImageFont.truetype(FONT_SUB, 22)
     except Exception:
